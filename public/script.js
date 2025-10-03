@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     registerError.textContent = "";
   });
 
-  loginFormDiv.querySelector("form").addEventListener("submit", (e) => {
+  loginFormDiv.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value.trim();
@@ -35,35 +35,72 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (password.length < 6) {
-      loginError.textContent = "A jelszónak legalább 6 karakter hosszúnak kell lennie!";
+      loginError.textContent =
+        "A jelszónak legalább 6 karakter hosszúnak kell lennie!";
       return;
     }
+
     loginError.textContent = "";
-    alert("Sikeres bejelentkezés!");
+
+    try {
+      const response = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        alert(`Sikeres bejelentkezés! Üdv, ${user.email}!`);
+      } else {
+        const error = await response.json();
+        loginError.textContent = error.message;
+      }
+    } catch (err) {
+      loginError.textContent = "Hiba történt a bejelentkezés során!";
+    }
   });
 
-  registerFormDiv.querySelector("form").addEventListener("submit", (e) => {
+  registerFormDiv.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("regEmail").value.trim();
-    const pass1 = document.getElementById("regPassword").value.trim();
-    const pass2 = document.getElementById("regPassword2").value.trim();
+    const password = document.getElementById("regPassword").value.trim();
+    const password2 = document.getElementById("regPassword2").value.trim();
 
     if (!validateEmail(email)) {
       registerError.textContent = "Hibás email formátum!";
       return;
     }
 
-    if (pass1.length < 6) {
-      registerError.textContent = "A jelszónak legalább 6 karakter hosszúnak kell lennie!";
+    if (password.length < 6) {
+      registerError.textContent =
+        "A jelszónak legalább 6 karakter hosszúnak kell lennie!";
       return;
     }
 
-    if (pass1 !== pass2) {
-      registerError.textContent = "A két jelszó nem egyezik!";
+    if (password !== password2) {
+      registerError.textContent = "A jelszavak nem egyeznek!";
       return;
     }
 
     registerError.textContent = "";
-    alert("Sikeres regisztráció!");
+
+    try {
+      const response = await fetch("/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        alert("Sikeres regisztráció! Most már bejelentkezhetsz.");
+        document.getElementById("showLogin").click();
+      } else {
+        const error = await response.json();
+        registerError.textContent = error.message;
+      }
+    } catch (err) {
+      registerError.textContent = "Hiba történt a regisztráció során!";
+    }
   });
 });

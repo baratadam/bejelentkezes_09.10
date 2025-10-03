@@ -2,12 +2,12 @@
   "name": "bejelentkezes_09.10",
   "version": "1.0.0",
   "description": "",
-  "main": "script.js",
+  "main": "util/app.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon script.js",
+    "start": "util/node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon script.js"
+    "dev": "nodemon util/app.js"
   
   },
   "keywords": [],
